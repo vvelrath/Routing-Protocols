@@ -1,0 +1,85 @@
+/*-----------------------------------------DESIGN DOCUMENT-----------------------------------------------*/
+
+-----------------------------------------------------------------------------------------------------------
+1) Routing Update packet - Data Structure in C
+
+typedef struct{
+	int16_t number_of_updates;
+	uint16_t port_no;
+	uint32_t ip_address;
+	Update_entry entry[5];  
+} routing_update;
+
+typedef struct{
+	uint32_t ip_address;
+	uint16_t port_no;
+	int16_t zero_padding;
+	int16_t server_id;
+	uint16_t cost;
+} Update_entry;
+
+
+------------------------------------------------------------------------------------------------------------
+2) Routing table - Data Structure in C
+
+//Declaration of routing table
+Routing_entry routing_table[5];
+
+typedef struct{
+	int16_t dest_server_id;
+	int16_t next_hop_server_id;
+	uint16_t cost_of_link;
+	int16_t counter;
+} Routing_entry;
+
+
+-----------------------------------------------------------------------------------------------------------
+3) Pseudo code of the Select Loop
+
+struct timeval timeout;
+
+//Infinite FOR loop to continuously satisfy the network
+for(;;){
+		//Setting the Timeout value -- for every iteration in the for loop
+		timeval.tv_sec = 10;
+		
+		//Copying the master list to the watch list
+		memcpy(&watch_sockets,&master_sockets,sizeof(&master_sockets));
+
+		rv_select = select(max_socket+1,&watch_sockets,NULL,NULL,&timeval);
+
+		if(rv_select == -1){
+			perror("Error in Select");
+			exit(1);
+		}else if(rv_select == 0){ // Timeout
+			STEP 1: Send routing table to neighbours
+			STEP 2: decrement_counters_for_neighbours(); //Timer implementation described in the next section
+		}else{
+			//There is some data from some socket
+			STEP 1: Check standard input for user commands
+			STEP 2: For each neighbour
+					a) Check for routing update from the neighbour
+					b) reset_counter_for_neighbour(server_id); // Implementation described in the next section
+		}
+}//end for
+
+------------------------------------------------------------------------------------------------------------------------
+4) Multiple timer implementation
+
+	Description: I maintain a counter for each of the neighbours which is initially set to (Routing_entry.counter = 3).	
+	
+	During TIMEOUT: Whenever the select timeouts, the counter for each of the neighbours are decremented by 1. When a counter reaches 0 for any of the neighbours, the cost is set as Infinity.
+				 
+	a) 	void decrement_counters_for_neighbours(){
+			For each neighbour:
+			Step 1: Routing_entry.counter = Routing_entry.counter - 1;
+			Step 2: If Routing_entry.counter == 0, Routing_entry.cost_of_link = Infinity 
+		}
+		
+	During ROUTING UPDATE: When I receive a routing update from a neighbour, the counter is reset to 3
+
+	b) 	void reset_counter_for_neighbour(server_id){
+			For server_id, set Routing_entry.counter = 3;
+		}
+		
+/*----------------------------------------------End of design document-------------------------------------------------*/
