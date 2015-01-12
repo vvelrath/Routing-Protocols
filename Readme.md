@@ -11,7 +11,8 @@ b) the user uses a command asking for one.
 
 ### Topology Establishment
 
-In this programming assignment, five servers were used – {stones, euston, highgate, embankment, underground}.cse.buffalo.edu. Each server will need to be supplied with a topology file at startup that it uses to build its initial routing table. The topology file is local and contains the link cost to the neighbors. For all other servers in the network, the initial cost would be infinity. Each server can only read the topology file for itself. The entries of a topology file are listed below																			
+In this programming assignment, five servers were used – {stones, euston, highgate, embankment, underground}.cse.buffalo.edu. Each server will need to be supplied with a topology file at startup that it uses to build its initial routing table. The topology file is local and contains the link cost to the neighbors. For all other servers in the network, the initial cost would be infinity. Each server can only read the topology file for itself. The entries of a topology file are listed below				
+															
 	● num­servers
 	● num­neighbors
 	● server­ID server­IP server­port
